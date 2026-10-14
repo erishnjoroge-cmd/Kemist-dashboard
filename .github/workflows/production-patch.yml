@@ -1,0 +1,24 @@
+name: Production Forward Lab Patch CI
+
+on:
+  pull_request:
+    paths:
+      - 'patches/integrate_forward_lab_into_production.mjs'
+      - 'docs/production-forward-lab-live-integration.md'
+      - '.github/workflows/production-patch.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'patches/integrate_forward_lab_into_production.mjs'
+      - '.github/workflows/production-patch.yml'
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check exact Production integration patch
+        run: node --check patches/integrate_forward_lab_into_production.mjs
