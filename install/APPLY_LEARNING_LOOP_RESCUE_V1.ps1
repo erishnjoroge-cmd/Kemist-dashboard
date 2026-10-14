@@ -13,9 +13,10 @@ function JsonPost([string]$Url,[int]$Seconds=180) { try { return Invoke-RestMeth
 
 Write-Host ''
 Write-Host '============================================================' -ForegroundColor Cyan
-Write-Host ' KEMIST LEARNING LOOP RESCUE V1' -ForegroundColor Cyan
+Write-Host ' KEMIST LEARNING LOOP RESCUE V1.2' -ForegroundColor Cyan
 Write-Host '============================================================'
 Write-Host 'Repairs the stuck Results -> Projection Learning settlement path.'
+Write-Host 'Uses a versioned rescue patch path to avoid stale raw GitHub caching.'
 Write-Host 'No projection thresholds, CLAW rules, RTL rules, or 2/2 rules are changed.'
 Write-Host ''
 
@@ -58,9 +59,10 @@ $resultsHash = Hash $Results
 if ($resultsHash -ne $ExpectedResultsBefore -and $resultsHash -ne $ExpectedResultsAfter) { throw "SAFETY STOP: results_lab.mjs fingerprint mismatch: $resultsHash" }
 Write-Host "[1/7] Exact runtime: $Root" -ForegroundColor Green
 
-$patch = Join-Path $env:TEMP 'KEMIST_projection_settlement_rescue_v1.mjs'
-Invoke-WebRequest -Uri "$Raw/patches/projection_settlement_rescue_v1.mjs" -OutFile $patch -UseBasicParsing -TimeoutSec 30
-Write-Host '[2/7] Settlement rescue patch downloaded.' -ForegroundColor Green
+$patch = Join-Path $env:TEMP 'KEMIST_projection_settlement_rescue_v1_2.mjs'
+$patchUrl = "$Raw/patches/projection_settlement_rescue_v1_2.mjs?build=20261014-v12"
+Invoke-WebRequest -Uri $patchUrl -OutFile $patch -UseBasicParsing -TimeoutSec 30
+Write-Host '[2/7] Versioned settlement rescue patch V1.2 downloaded.' -ForegroundColor Green
 
 $listener = ListenerPid $Port
 if ($listener) {
@@ -77,7 +79,7 @@ if (-not $nodeCmd) { $nodeCmd = Get-Command node -ErrorAction SilentlyContinue }
 if (-not $nodeCmd) { throw 'Node.js not found.' }
 $node = $nodeCmd.Source
 & $node $patch $Results
-if ($LASTEXITCODE -ne 0) { throw 'Projection Settlement Rescue patch failed.' }
+if ($LASTEXITCODE -ne 0) { throw 'Projection Settlement Rescue V1.2 patch failed.' }
 if ((Hash $Results) -ne $ExpectedResultsAfter) { throw "SAFETY STOP: final Results Lab hash unexpected: $(Hash $Results)" }
 & $node --check $Results
 if ($LASTEXITCODE -ne 0) { throw 'results_lab.mjs syntax check failed.' }
@@ -114,7 +116,7 @@ if ($afterLearning) {
 }
 if ($null -ne $rescueQueued) { Write-Host ("      projection settlement rescue queued/refreshed: {0}" -f $rescueQueued) -ForegroundColor Cyan }
 Write-Host ''
-Write-Host 'LEARNING LOOP RESCUE V1 IS LIVE.' -ForegroundColor Green
+Write-Host 'LEARNING LOOP RESCUE V1.2 IS LIVE.' -ForegroundColor Green
 Write-Host 'The old 45.5% number will change only when newly rescued games settle; it is not overwritten or fabricated.' -ForegroundColor Yellow
 Write-Host 'Results worker remains on and will keep processing the rescued backlog.' -ForegroundColor Yellow
 Start-Process "http://127.0.0.1:$Port/"
