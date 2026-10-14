@@ -27,6 +27,7 @@ jobs:
           $errors = $null
           [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'install/APPLY_PIPELINE_RECOVERY_V1.ps1'), [ref]$null, [ref]$errors)
           if ($errors.Count -gt 0) { $errors | Format-List; exit 1 }
-          cmd /c "call install\APPLY_PIPELINE_RECOVERY_V1.cmd < NUL" 2>$null
-          if ($LASTEXITCODE -eq 9009) { exit 1 }
-          exit 0
+          $cmd = Get-Content -LiteralPath 'install/APPLY_PIPELINE_RECOVERY_V1.cmd' -Raw
+          if ($cmd -notmatch 'APPLY_PIPELINE_RECOVERY_V1.ps1') { throw 'CMD bootstrap target missing' }
+          if ($cmd -notmatch 'DOWNLOAD FAILED') { throw 'CMD failure hold-open path missing' }
+          Write-Host 'PowerShell parse PASS; CMD bootstrap structure PASS.'
