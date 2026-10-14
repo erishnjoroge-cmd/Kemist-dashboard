@@ -1,0 +1,35 @@
+name: Live Apply Windows CI
+
+on:
+  pull_request:
+    paths:
+      - 'install/APPLY_FORWARD_LAB_LIVE.ps1'
+      - 'install/APPLY_FORWARD_LAB_LIVE.cmd'
+      - '.github/workflows/live-apply-windows.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'install/APPLY_FORWARD_LAB_LIVE.ps1'
+      - 'install/APPLY_FORWARD_LAB_LIVE.cmd'
+
+jobs:
+  powershell-parse:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell installer without executing it
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'install/APPLY_FORWARD_LAB_LIVE.ps1'), [ref]$tokens, [ref]$errors)
+          if ($errors.Count -gt 0) {
+            $errors | ForEach-Object { Write-Error $_.Message }
+            exit 1
+          }
+          Write-Host 'PowerShell parse PASS'
+      - name: Verify one-click wrapper exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'install/APPLY_FORWARD_LAB_LIVE.cmd')) { exit 1 }
+          Write-Host 'CMD wrapper PASS'
