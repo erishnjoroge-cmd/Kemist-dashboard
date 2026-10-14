@@ -4,15 +4,19 @@ on:
   pull_request:
     paths:
       - 'src/forward_lab.mjs'
+      - 'src/forward_lab_runtime.mjs'
       - 'test/forward_lab_selftest.mjs'
       - 'test/forward_lab_cycle_integration.mjs'
+      - 'test/forward_lab_runtime_selftest.mjs'
       - '.github/workflows/forward-lab.yml'
   push:
     branches: [main]
     paths:
       - 'src/forward_lab.mjs'
+      - 'src/forward_lab_runtime.mjs'
       - 'test/forward_lab_selftest.mjs'
       - 'test/forward_lab_cycle_integration.mjs'
+      - 'test/forward_lab_runtime_selftest.mjs'
 
 jobs:
   selftest:
@@ -26,3 +30,5 @@ jobs:
         run: node test/forward_lab_selftest.mjs
       - name: Run Forward Lab freeze / dedupe / settlement integration test
         run: node test/forward_lab_cycle_integration.mjs
+      - name: Run Forward Lab runtime / dashboard adapter self-test
+        run: node test/forward_lab_runtime_selftest.mjs
