@@ -5,12 +5,14 @@ on:
     paths:
       - 'src/forward_lab.mjs'
       - 'test/forward_lab_selftest.mjs'
+      - 'test/forward_lab_cycle_integration.mjs'
       - '.github/workflows/forward-lab.yml'
   push:
     branches: [main]
     paths:
       - 'src/forward_lab.mjs'
       - 'test/forward_lab_selftest.mjs'
+      - 'test/forward_lab_cycle_integration.mjs'
 
 jobs:
   selftest:
@@ -22,3 +24,5 @@ jobs:
           node-version: '22'
       - name: Run Forward Lab self-test
         run: node test/forward_lab_selftest.mjs
+      - name: Run Forward Lab freeze / dedupe / settlement integration test
+        run: node test/forward_lab_cycle_integration.mjs
