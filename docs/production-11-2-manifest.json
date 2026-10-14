@@ -1,0 +1,22 @@
+{
+  "source_archive": "Production (11)(2).zip",
+  "captured_on": "2026-10-14",
+  "core_files": {
+    "server.mjs": {"sha256": "eaec113ed4acb7bdabe4eb42664f2c3feb4ddb471b79ace7d6b395b9550b4c55", "bytes": 138103},
+    "multisport_engine.mjs": {"sha256": "686dbe9acec95751bba5ce90e76669118c65d16fafcdf3bc0de2cab34577aaf0", "bytes": 87824},
+    "multisport_lab.mjs": {"sha256": "0a3dea7edcac28842908ccd931d748b3f79b3b068c82a81988fb1290ee97efa0", "bytes": 44462},
+    "weekly_validation.mjs": {"sha256": "ca2e411e8d5b802c455747862e94b49267469749fcbc22be2de96269107eb3e8", "bytes": 36755},
+    "scanner.mjs": {"sha256": "77045fb9612a29277ce3cee1b13a6f65a24e76ec430a8fae676c90506db44ddf", "bytes": 83135},
+    "scanner_core.mjs": {"sha256": "de2dbad2ef94bbcd9dd64f9da1f4749f931be4d878ff2a150869f19302e64e0e", "bytes": 36964},
+    "results_lab.mjs": {"sha256": "5d2f0a1037466876eb3d1478a3a05bedcbe69545b9a5210fc598c7ab39d68855", "bytes": 165833},
+    "projection_learning.mjs": {"sha256": "fe0f4d6e4446c54189ae6ffdfc841dd6d72108ae090ede36888189f351c170fc", "bytes": 16086},
+    "projection_shadow.mjs": {"sha256": "d8cca1efd6eb065d6502fa65dd58169dae0f1120bb99239a537ede4f3c5ca127", "bytes": 10215},
+    "projection_calibration.mjs": {"sha256": "f4b92508345da1d3bea6fdd3c4151406b3e633b234f38646c457b4ad70742ce5", "bytes": 7180},
+    "browser_board.mjs": {"sha256": "d0f91328992d2c5b91413caf5b3405a4a3dceadbc4023707b52a9a5f0d316229", "bytes": 54661},
+    "blind_projection_core.mjs": {"sha256": "18f73e4509b650c59d5be6b0597df7910cf70d180eb7744e9d052d3aceb62820", "bytes": 54997},
+    "kitchen.mjs": {"sha256": "799c5e8ab80b6cd2a04f27811b7238d57ce1ea789f072e8e732365a1132acc7e", "bytes": 42915},
+    "PRIZEPICKS_BRIDGE_GUARDIAN.ps1": {"sha256": "4890a6382796795339795973fb51635cf27891b1b5a5f4ef83113eef751084e7", "bytes": 4632},
+    "START_KEMIST.ps1": {"sha256": "425281b76f44a9f713f34af4974438ee620623fea206094911b1c4d35df6b363", "bytes": 8566},
+    "OPEN_DASHBOARD_AND_PP.ps1": {"sha256": "e957e6f77e710ba8cf1e7c9848d21351cafa74f8724ddc830b5e41f3eae86d20", "bytes": 1233}
+  }
+}
