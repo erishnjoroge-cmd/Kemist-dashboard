@@ -1,0 +1,24 @@
+name: Forward Lab CI
+
+on:
+  pull_request:
+    paths:
+      - 'src/forward_lab.mjs'
+      - 'test/forward_lab_selftest.mjs'
+      - '.github/workflows/forward-lab.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/forward_lab.mjs'
+      - 'test/forward_lab_selftest.mjs'
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Forward Lab self-test
+        run: node test/forward_lab_selftest.mjs
