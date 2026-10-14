@@ -1,0 +1,33 @@
+name: Learning Loop Rescue V1 CI
+
+on:
+  pull_request:
+    paths:
+      - 'patches/projection_settlement_rescue_v1.mjs'
+      - 'install/APPLY_LEARNING_LOOP_RESCUE_V1.ps1'
+      - 'install/APPLY_LEARNING_LOOP_RESCUE_V1.cmd'
+      - '.github/workflows/learning-loop-rescue-v1.yml'
+
+jobs:
+  node-patch-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check patches/projection_settlement_rescue_v1.mjs
+
+  windows-bootstrap-parse:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: powershell
+        run: |
+          $errors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'install/APPLY_LEARNING_LOOP_RESCUE_V1.ps1'), [ref]$null, [ref]$errors)
+          if ($errors.Count -gt 0) { $errors | Format-List; exit 1 }
+          $cmd = Get-Content -LiteralPath 'install/APPLY_LEARNING_LOOP_RESCUE_V1.cmd' -Raw
+          if ($cmd -notmatch 'APPLY_LEARNING_LOOP_RESCUE_V1.ps1') { throw 'CMD bootstrap target missing' }
+          if ($cmd -notmatch 'DOWNLOAD FAILED') { throw 'CMD hold-open failure path missing' }
+          Write-Host 'PowerShell parse PASS; CMD bootstrap structure PASS.'
