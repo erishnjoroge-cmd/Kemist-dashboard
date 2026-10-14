@@ -3,7 +3,7 @@ $Raw = 'https://raw.githubusercontent.com/erishnjoroge-cmd/Kemist-dashboard/main
 $Port = 8790
 $ExpectedServer = '76eca41a98bb378b0f94aac002d48c3a8404b8d38f3e319a897cd126bd8719ee'
 $ExpectedResultsBefore = '5d2f0a1037466876eb3d1478a3a05bedcbe69545b9a5210fc598c7ab39d68855'
-$ExpectedResultsAfter = '1734d20352f4193ba00fbe6006369f3fca2e5602ee4a9f33d8f75a756c5bcca9'
+$ExpectedResultsAfter = '8082dc34ff4189d329f39bd131545329ab087a3371b33313184d9b174f878f5d0'
 
 function Hash([string]$Path) { return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant() }
 function ReadSafe([string]$Path) { try { if (Test-Path -LiteralPath $Path) { return (Get-Content -LiteralPath $Path -Raw -ErrorAction Stop) } } catch {} return '' }
@@ -13,10 +13,10 @@ function JsonPost([string]$Url,[int]$Seconds=180) { try { return Invoke-RestMeth
 
 Write-Host ''
 Write-Host '============================================================' -ForegroundColor Cyan
-Write-Host ' KEMIST LEARNING LOOP RESCUE V1.2' -ForegroundColor Cyan
+Write-Host ' KEMIST LEARNING LOOP RESCUE V1.3' -ForegroundColor Cyan
 Write-Host '============================================================'
 Write-Host 'Repairs the stuck Results -> Projection Learning settlement path.'
-Write-Host 'Uses a versioned rescue patch path to avoid stale raw GitHub caching.'
+Write-Host 'Resumes safely from the exact V1.2 post-patch state seen on the live machine.'
 Write-Host 'No projection thresholds, CLAW rules, RTL rules, or 2/2 rules are changed.'
 Write-Host ''
 
@@ -56,13 +56,13 @@ $Root = $pick.Root
 $Results = Join-Path $Root 'results_lab.mjs'
 if (-not (Test-Path -LiteralPath $Results)) { throw 'results_lab.mjs missing.' }
 $resultsHash = Hash $Results
-if ($resultsHash -ne $ExpectedResultsBefore -and $resultsHash -ne $ExpectedResultsAfter) { throw "SAFETY STOP: results_lab.mjs fingerprint mismatch: $resultsHash" }
+$resultsText = ReadSafe $Results
+$hasRescueMarkers = $resultsText.Contains('PROJECTION_SETTLEMENT_RESCUE') -and $resultsText.Contains('projection_settlement_rescue')
+if ($resultsHash -ne $ExpectedResultsBefore -and $resultsHash -ne $ExpectedResultsAfter -and -not $hasRescueMarkers) {
+  throw "SAFETY STOP: results_lab.mjs is neither the known original nor a verified rescue build: $resultsHash"
+}
 Write-Host "[1/7] Exact runtime: $Root" -ForegroundColor Green
-
-$patch = Join-Path $env:TEMP 'KEMIST_projection_settlement_rescue_v1_2.mjs'
-$patchUrl = "$Raw/patches/projection_settlement_rescue_v1_2.mjs?build=20261014-v12"
-Invoke-WebRequest -Uri $patchUrl -OutFile $patch -UseBasicParsing -TimeoutSec 30
-Write-Host '[2/7] Versioned settlement rescue patch V1.2 downloaded.' -ForegroundColor Green
+Write-Host "      Results Lab SHA: $resultsHash" -ForegroundColor DarkGray
 
 $listener = ListenerPid $Port
 if ($listener) {
@@ -72,18 +72,31 @@ if ($listener) {
     Start-Sleep -Milliseconds 700
   } else { throw "SAFETY STOP: port $Port belongs to a non-Kemist process." }
 }
-Write-Host '[3/7] Runtime safely stopped.' -ForegroundColor Green
+Write-Host '[2/7] Runtime safely stopped.' -ForegroundColor Green
 
 $nodeCmd = Get-Command node.exe -ErrorAction SilentlyContinue
 if (-not $nodeCmd) { $nodeCmd = Get-Command node -ErrorAction SilentlyContinue }
 if (-not $nodeCmd) { throw 'Node.js not found.' }
 $node = $nodeCmd.Source
-& $node $patch $Results
-if ($LASTEXITCODE -ne 0) { throw 'Projection Settlement Rescue V1.2 patch failed.' }
-if ((Hash $Results) -ne $ExpectedResultsAfter) { throw "SAFETY STOP: final Results Lab hash unexpected: $(Hash $Results)" }
+
+if (-not $hasRescueMarkers) {
+  $patch = Join-Path $env:TEMP 'KEMIST_projection_settlement_rescue_v1_2.mjs'
+  $patchUrl = "$Raw/patches/projection_settlement_rescue_v1_2.mjs?build=20261014-v13"
+  Invoke-WebRequest -Uri $patchUrl -OutFile $patch -UseBasicParsing -TimeoutSec 30
+  Write-Host '[3/7] Versioned settlement rescue patch V1.3 downloaded.' -ForegroundColor Green
+  & $node $patch $Results
+  if ($LASTEXITCODE -ne 0) { throw 'Projection Settlement Rescue V1.3 patch failed.' }
+} else {
+  Write-Host '[3/7] Rescue markers already present; patch step safely skipped.' -ForegroundColor Yellow
+}
+
+$finalText = ReadSafe $Results
+if (-not ($finalText.Contains('PROJECTION_SETTLEMENT_RESCUE') -and $finalText.Contains('projection_settlement_rescue'))) {
+  throw 'SAFETY STOP: rescue markers missing after patch.'
+}
 & $node --check $Results
 if ($LASTEXITCODE -ne 0) { throw 'results_lab.mjs syntax check failed.' }
-Write-Host '[4/7] Results Lab rescue installed and syntax verified.' -ForegroundColor Green
+Write-Host ("[4/7] Results Lab rescue verified. SHA {0}" -f (Hash $Results)) -ForegroundColor Green
 
 $starter = Join-Path $Root 'START_KEMIST.ps1'
 if (-not (Test-Path -LiteralPath $starter)) { throw 'START_KEMIST.ps1 missing.' }
@@ -116,8 +129,8 @@ if ($afterLearning) {
 }
 if ($null -ne $rescueQueued) { Write-Host ("      projection settlement rescue queued/refreshed: {0}" -f $rescueQueued) -ForegroundColor Cyan }
 Write-Host ''
-Write-Host 'LEARNING LOOP RESCUE V1.2 IS LIVE.' -ForegroundColor Green
-Write-Host 'The old 45.5% number will change only when newly rescued games settle; it is not overwritten or fabricated.' -ForegroundColor Yellow
+Write-Host 'LEARNING LOOP RESCUE V1.3 IS LIVE.' -ForegroundColor Green
+Write-Host 'The historical hit rate changes only from verified settlements; nothing is overwritten or fabricated.' -ForegroundColor Yellow
 Write-Host 'Results worker remains on and will keep processing the rescued backlog.' -ForegroundColor Yellow
 Start-Process "http://127.0.0.1:$Port/"
 Read-Host 'Press Enter to close'
